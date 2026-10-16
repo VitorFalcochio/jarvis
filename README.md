@@ -1,6 +1,6 @@
 ![Capa do J.A.R.V.I.S.](assets/jarvis.png)
 
-# J.A.R.V.I.S. v2
+# J.A.R.V.I.S. 
 
 Assistente pessoal por voz, em português, com o cérebro no **NVIDIA Nemotron**.
 
