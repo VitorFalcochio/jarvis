@@ -1,0 +1,25 @@
+{
+  "name": "jarvis",
+  "version": "2.0.0",
+  "description": "J.A.R.V.I.S. - assistente pessoal por voz",
+  "main": "main.js",
+  "scripts": {
+    "start": "set ELECTRON_RUN_AS_NODE=&& electron ."
+  },
+  "author": "Vitor",
+  "license": "MIT",
+  "dependencies": {
+    "mammoth": "^1.13.0",
+    "maplibre-gl": "^5.24.0",
+    "qrcode": "^1.5.4",
+    "selfsigned": "^5.5.0",
+    "systeminformation": "^5.33.15",
+    "three": "^0.186.1",
+    "unpdf": "^1.8.1",
+    "ws": "^8.22.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1"
+  }
+}

@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-QHspYcLLOKSarKa9WCONpLgp80qJjPebMyusqjGSeoo='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; media-src 'self' data: blob:; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self' blob:">
+  <title>J.A.R.V.I.S.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="screens.css">
+  <link rel="stylesheet" href="chat.css">
+  <link rel="stylesheet" href="chat-effort.css">
+  <link rel="stylesheet" href="dossie.css">
+  <link rel="stylesheet" href="oficina.css">
+  <link rel="stylesheet" href="../node_modules/maplibre-gl/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="documentary.css">
+  <link rel="stylesheet" href="forge.css">
+  <script type="importmap">{"imports":{"three":"../node_modules/three/build/three.module.js","three/addons/":"../node_modules/three/examples/jsm/"}}</script>
+</head>
+<body>
+  <div id="boot">
+    <img class="boot-logo" src="assets/image.png" alt="">
+    <div class="boot-title">J.A.R.V.I.S.</div>
+    <div class="boot-sub">Just A Rather Very Intelligent System</div>
+    <div class="boot-bar"><span></span></div>
+    <div class="boot-log" id="bootLog"></div>
+  </div>
+
+  <header class="titlebar">
+    <div class="brand"><button class="tb-toggle" id="btnRail" title="Mostrar/ocultar o menu (Ctrl+B)">☰</button><img class="brand-logo" src="assets/icon.png" alt="">J.A.R.V.I.S. <small>v2.0</small></div>
+    <div class="clock" id="clock">--:--</div>
+    <span class="sentinel-badge" id="sentinelBadge" hidden></span>
+    <span class="gesture-badge" id="gestureBadge" hidden>✋ GESTOS</span>
+    <div class="win-btns">
+      <button id="btnDialog" title="Mostrar/ocultar o diálogo lateral (Ctrl+Shift+B)">◧</button>
+      <button id="btnBriefing" title="Briefing do dia">☀</button>
+      <button id="btnSettings" title="Configurações">⚙</button>
+      <button data-win="min" title="Minimizar">—</button>
+      <button data-win="max" title="Maximizar">▢</button>
+      <button data-win="close" class="close" title="Fechar">✕</button>
+    </div>
+  </header>
+
+  <div class="shell">
+  <nav class="rail" id="rail" aria-label="Telas">
+    <button data-screen="hud" class="active" title="Início (Ctrl+1)"><span>◉</span><small>INÍCIO</small></button>
+    <button data-screen="chat" title="Chat (Ctrl+9)"><span>◍</span><small>CHAT</small></button>
+    <button data-screen="music" title="Música (Ctrl+2)"><span>♫</span><small>MÚSICA</small></button>
+    <button data-screen="projects" title="Projetos (Ctrl+3)"><span>⌘</span><small>PROJETOS</small></button>
+    <button data-screen="agenda" title="Agenda (Ctrl+4)"><span>☰</span><small>AGENDA</small></button>
+    <button data-screen="memory" title="Memória (Ctrl+5)"><span>✦</span><small>MEMÓRIA</small></button>
+    <button data-screen="research" title="Pesquisas (Ctrl+7)"><span>⌕</span><small>PESQUISAS</small></button>
+    <button data-screen="oficina" title="Oficina (Ctrl+8)"><span>▦</span><small>OFICINA</small></button>
+    <div class="rail-spacer"></div>
+    <button data-screen="settings" title="Configurações (Ctrl+6)"><span>⚙</span><small>AJUSTES</small></button>
+  </nav>
+  <main class="hud" data-screen="hud">
+    <aside class="panel left">
+      <section class="card">
+        <h3>SISTEMA</h3>
+        <div class="meter"><label>CPU</label><div class="bar"><i id="cpuBar"></i></div><span id="cpuVal">0%</span></div>
+        <div class="meter"><label>RAM</label><div class="bar"><i id="ramBar"></i></div><span id="ramVal">0%</span></div>
+        <div class="kv"><span>ATIVO HÁ</span><b id="uptime">--</b></div>
+        <div class="kv" id="presRow" hidden><span>NA MESA</span><b id="presVal">--</b></div>
+      </section>
+      <section class="card music" id="musicCard">
+        <h3>MÚSICA</h3>
+        <div class="np" id="np">
+          <img id="npCover" alt="">
+          <div class="np-text"><b id="npTitle">Nada tocando</b><span id="npArtist" class="muted">Diga "toca alguma coisa"</span></div>
+        </div>
+        <div class="np-controls">
+          <button data-music="previous" title="Anterior">⏮</button>
+          <button data-music="toggle" id="npToggle" title="Tocar/pausar">▶</button>
+          <button data-music="next" title="Próxima">⏭</button>
+          <button data-music="like" title="Curtir">♥</button>
+        </div>
+        <div class="np-bar"><i id="npProgress"></i></div>
+      </section>
+      <section class="card">
+        <h3>CLIMA</h3>
+        <div class="weather" id="weather"><span class="muted">Pergunte "como está o tempo?"</span></div>
+      </section>
+      <section class="card agenda">
+        <h3>AGENDA</h3>
+        <ul class="reminders" id="tasks"></ul>
+        <ul class="reminders" id="reminders"></ul>
+      </section>
+      <section class="card">
+        <h3>REGISTRO</h3>
+        <ul class="log" id="actionLog"></ul>
+      </section>
+    </aside>
+
+    <section class="center">
+      <figure class="cam" id="cam" hidden title="Clique para ampliar">
+        <img id="camImg" alt="Câmera do celular">
+        <figcaption><i></i>CÂMERA · CELULAR</figcaption>
+      </figure>
+      <canvas id="orb"></canvas>
+      <div class="status" id="status">INICIALIZANDO</div>
+      <div class="hint" id="hint">Diga <b>"Hey Jarvis"</b> ou clique no núcleo</div>
+      <div class="focus-box" id="focusBox" hidden>
+        <span class="focus-phase" id="focusPhase">FOCO</span>
+        <b class="focus-time" id="focusTime">25:00</b>
+        <span class="focus-cycles" id="focusCycles"></span>
+        <span class="focus-task muted" id="focusTask"></span>
+      </div>
+    </section>
+
+    <section class="briefing" id="briefing" hidden>
+      <header class="bf-head">
+        <div>
+          <span class="bf-kicker" id="bfKicker">BRIEFING DIÁRIO</span>
+          <h2 id="bfDate"></h2>
+          <span class="bf-subtitle muted" id="bfSubtitle"></span>
+        </div>
+        <button class="bf-close" id="bfClose" title="Fechar (Esc)">✕</button>
+      </header>
+      <div class="bf-loading" id="bfLoading">
+        <div class="bf-scan"></div>
+        <ul>
+          <li>Câmbio</li><li>Inteligência artificial</li><li>Curiosidades</li><li>Memes</li><li>Clima</li>
+        </ul>
+      </div>
+      <div class="bf-grid" id="bfGrid"></div>
+    </section>
+
+    <!-- ===================== HOLOGRAMA 3D ===================== -->
+    <section class="holo" id="holo" hidden>
+      <header class="bf-head">
+        <div><span class="bf-kicker">HOLOGRAMA</span><h2 id="holoTitle"></h2></div>
+        <button class="bf-close" id="holoClose" title="Fechar">✕</button>
+      </header>
+      <canvas id="holoCanvas"></canvas>
+      <p class="holo-hint">arraste para girar · roda do mouse para zoom · ✋ pinça para girar com a mão · ✊ fecha</p>
+    </section>
+
+    <!-- ===================== MÚSICA ===================== -->
+    <section class="screen" id="scr-chat" hidden>
+      <header class="cs-top">
+        <div class="cs-who"><i class="cs-dot" id="csDot"></i><b>J.A.R.V.I.S.</b><span class="muted" id="csState">pronto</span></div>
+        <div class="cs-top-btns">
+          <button class="cs-pill" id="csVoice" type="button" title="Ler em voz alta as respostas do que eu digitar">🔇 Voz desligada</button>
+          <button class="cs-pill" id="csNew" type="button" title="Começar uma conversa nova (o JARVIS esquece o contexto desta)">＋ Nova conversa</button>
+        </div>
+      </header>
+      <div class="cs-body" id="csBody">
+        <div class="cs-empty" id="csEmpty">
+          <img src="assets/icon.png" alt="">
+          <h2 id="csHello">Como posso ajudar?</h2>
+          <div class="cs-suggest" id="csSuggest"></div>
+        </div>
+      </div>
+      <div class="cs-drop" id="csDrop" hidden><div><b>Solte para anexar</b><span>prints, PDF, planilhas, Word, código</span></div></div>
+      <form class="cs-composer" id="csForm">
+        <div class="cs-tray" id="csTray" hidden></div>
+        <textarea id="csText" rows="1" placeholder="Pergunte qualquer coisa ao JARVIS" autocomplete="off"></textarea>
+        <div class="cs-row">
+          <button class="cs-clip" id="csClip" type="button" title="Anexar arquivo (ou arraste, ou cole um print com Ctrl+V)">📎</button>
+          <input type="file" id="csFile" multiple hidden>
+          <div class="cs-effort" id="csEffort" role="radiogroup" aria-label="Esforço">
+            <button type="button" data-effort="min" role="radio" title="Mínimo: responde na hora, no impulso">⚡ Mínimo</button>
+            <button type="button" data-effort="mid" role="radio" title="Médio: pensa antes de responder e confere a resposta">◐ Médio</button>
+            <button type="button" data-effort="max" role="radio" title="Máximo: um conselho explora várias abordagens, compara com notas e recomenda (30 a 90 s)">● Máximo</button>
+          </div>
+          <span class="cs-hint muted">Enter envia · Shift+Enter quebra linha</span>
+          <button class="cs-mic" id="csMic" type="button" title="Falar (Ctrl+Espaço)">🎙</button>
+          <button class="cs-send" id="csSend" type="submit" title="Enviar">➤</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="screen" id="scr-music" hidden>
+      <div class="mu-layout">
+        <div class="mu-now">
+          <div class="mu-cover-wrap">
+            <canvas class="mu-viz" id="muViz"></canvas>
+            <img class="mu-cover" id="muCover" alt="">
+          </div>
+          <h2 class="mu-title" id="muTitle">Nada tocando</h2>
+          <div class="mu-artist muted" id="muArtist">Diga "toca alguma coisa"</div>
+          <div class="mu-progress">
+            <span id="muElapsed">0:00</span>
+            <input type="range" id="muSeek" min="0" max="100" value="0" aria-label="Posição da música">
+            <span id="muDuration">0:00</span>
+          </div>
+          <div class="mu-controls">
+            <button data-mu="shuffle" title="Aleatório">⤮</button>
+            <button data-mu="previous" title="Anterior">⏮</button>
+            <button data-mu="toggle" class="mu-play" id="muToggle" title="Tocar/pausar">▶</button>
+            <button data-mu="next" title="Próxima">⏭</button>
+            <button data-mu="like" title="Curtir">♥</button>
+          </div>
+          <label class="mu-volume"><span>🔈</span><input type="range" id="muVolume" min="0" max="100" aria-label="Volume"><span>🔊</span></label>
+        </div>
+        <div class="mu-lyrics card">
+          <h3>LETRA <span class="muted" id="muLyricsInfo"></span></h3>
+          <div class="mu-lyrics-body" id="muLyrics"><p class="muted">A letra aparece aqui quando uma música estiver tocando.</p></div>
+        </div>
+        <div class="mu-side">
+          <section class="card mu-queue-card">
+            <h3>A SEGUIR</h3>
+            <ul class="mu-queue" id="muQueue"></ul>
+          </section>
+          <section class="card mu-pl-card">
+            <h3>SUAS PLAYLISTS</h3>
+            <div class="mu-playlists" id="muPlaylists"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROJETOS ===================== -->
+    <section class="screen" id="scr-projects" hidden>
+      <header class="scr-head">
+        <div><span class="bf-kicker">PROJETOS</span><h2 id="prRoot">E:\Projetos</h2></div>
+        <button class="btn" id="prRefresh">↻ Atualizar</button>
+      </header>
+      <section class="card ag-agent" id="agentCard" hidden></section>
+      <div class="pr-grid" id="prGrid"></div>
+      <div class="pr-bottom">
+        <section class="card"><h3>PORTAS EM USO</h3><ul class="pr-list" id="prPorts"></ul></section>
+        <section class="card"><h3>DOCKER</h3><ul class="pr-list" id="prDocker"></ul></section>
+      </div>
+    </section>
+
+    <!-- ===================== AGENDA ===================== -->
+    <section class="screen" id="scr-agenda" hidden>
+      <header class="scr-head">
+        <div><span class="bf-kicker">AGENDA</span><h2>Tarefas e foco</h2></div>
+        <form class="ag-add" id="agAdd">
+          <input id="agAddText" placeholder="Nova tarefa..." autocomplete="off">
+          <input id="agAddDue" type="date" title="Prazo (opcional)">
+          <button class="btn primary" type="submit">Adicionar</button>
+        </form>
+      </header>
+      <div class="ag-board">
+        <section class="ag-col" data-status="todo"><h3>A FAZER <b class="ag-count"></b></h3><ul class="ag-list"></ul></section>
+        <section class="ag-col" data-status="doing"><h3>FAZENDO <b class="ag-count"></b></h3><ul class="ag-list"></ul></section>
+        <section class="ag-col" data-status="done"><h3>FEITO <b class="ag-count"></b></h3><ul class="ag-list"></ul></section>
+      </div>
+      <div class="ag-bottom">
+        <section class="card ag-focus"><h3>HORAS DE FOCO · 7 DIAS <span class="muted" id="agFocusTotal"></span></h3><div class="viz-host" id="agFocusChart"></div></section>
+        <section class="card ag-notes">
+          <h3>NOTAS</h3>
+          <form class="ag-note-add" id="agNoteAdd"><input id="agNoteText" placeholder="Anotar algo..." autocomplete="off"><input id="agNoteSearch" placeholder="Buscar..." autocomplete="off"></form>
+          <ul class="ag-notes-list" id="agNotes"></ul>
+        </section>
+        <section class="card ag-rem"><h3>LEMBRETES</h3><ul class="pr-list" id="agReminders"></ul></section>
+      </div>
+    </section>
+
+    <!-- ===================== MEMÓRIA ===================== -->
+    <section class="screen" id="scr-memory" hidden>
+      <header class="scr-head">
+        <div><span class="bf-kicker">MEMÓRIA</span><h2>O que o JARVIS sabe</h2></div>
+      </header>
+      <section class="card kb-section">
+        <h3>DOSSIÊS <span class="muted">· o que você ensinou ao JARVIS sobre empresas, projetos e assuntos</span></h3>
+        <div class="kb-grid" id="kbGrid"></div>
+      </section>
+      <div class="me-layout">
+        <section class="card me-facts">
+          <h3>SOBRE VOCÊ <span class="muted" id="meFactCount"></span></h3>
+          <form class="ag-note-add" id="meAdd"><input id="meAddText" placeholder='Ensinar algo, ex: "Prefiro respostas curtas"' autocomplete="off"></form>
+          <ul class="me-facts-list" id="meFacts"></ul>
+        </section>
+        <section class="card me-convs">
+          <h3>CONVERSAS <span class="muted" id="meConvCount"></span>
+            <span class="me-tools"><input id="meSearch" placeholder="Buscar nas conversas..." autocomplete="off"><button class="link" id="meClear">apagar registro</button></span>
+          </h3>
+          <div class="me-conv-list" id="meConvs"></div>
+        </section>
+        <section class="card me-stats"><h3>O QUE VOCÊ MAIS PEDE</h3><div class="viz-host" id="meToolChart"></div></section>
+      </div>
+    </section>
+
+    <!-- ===================== OFICINA ===================== -->
+    <section class="screen" id="scr-oficina" hidden>
+      <div id="oficinaMount" class="of-mount"></div>
+      <div class="of-elsewhere" id="oficinaElsewhere" hidden>
+        <div class="rs-big-icon">▦</div>
+        <h2>A Oficina está aberta no outro monitor</h2>
+        <p class="muted">Para não desenhar tudo duas vezes, ela fica só na janela dedicada.</p>
+        <div class="pr-actions">
+          <button class="btn primary" id="oficinaFocus">Trazer para a frente</button>
+          <button class="btn" id="oficinaCloseWin">Fechar a janela e mostrar aqui</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PESQUISAS ===================== -->
+    <section class="screen" id="scr-research" hidden>
+      <div class="rs-layout">
+        <aside class="card rs-side">
+          <h3>PESQUISAS <span class="muted" id="rsCount"></span></h3>
+          <input id="rsSearch" placeholder="Buscar..." autocomplete="off">
+          <ul class="rs-list" id="rsList"></ul>
+          <p class="rs-tip muted">Peça: "pesquisa a fundo sobre...", "compara A e B" ou "resume esse link".</p>
+        </aside>
+        <article class="rs-view" id="rsView"></article>
+      </div>
+    </section>
+
+    <!-- ===================== CONFIGURAÇÕES ===================== -->
+    <section class="screen" id="scr-settings" hidden>
+      <header class="scr-head">
+        <div><span class="bf-kicker">AJUSTES</span><h2>Configurações</h2></div>
+        <button class="btn primary" form="settingsForm" type="submit">Salvar</button>
+      </header>
+      <form class="st-grid" id="settingsForm">
+        <section class="card">
+          <h3>INTELIGÊNCIA</h3>
+          <label>Chave da API NVIDIA <a href="#" id="getKey">(obter em build.nvidia.com)</a>
+            <input type="password" name="apiKey" placeholder="nvapi-...">
+          </label>
+          <label>Modelo Nemotron
+            <div class="row"><input name="model" list="models"><button type="button" id="btnModels">listar</button></div>
+            <datalist id="models"></datalist>
+          </label>
+          <label>Modelo de visão (câmera e tela)<input name="visionModel"></label>
+        </section>
+        <section class="card">
+          <h3>VOZ</h3>
+          <div class="grid2">
+            <label>Voz do JARVIS
+              <select name="voice">
+                <option value="pt-BR-AntonioNeural">Antonio (masculina)</option>
+                <option value="pt-BR-FranciscaNeural">Francisca (feminina)</option>
+                <option value="pt-BR-ThalitaMultilingualNeural">Thalita (feminina)</option>
+              </select>
+            </label>
+            <label>Reconhecimento de fala
+              <select name="whisperModel">
+                <option value="base">Rápido (base), recomendado</option>
+                <option value="small">Preciso (small, ~8s por frase)</option>
+              </select>
+            </label>
+          </div>
+          <label>Sensibilidade do "Hey Jarvis": <span id="wakeVal"></span>
+            <input type="range" name="wakeThreshold" min="0.2" max="0.9" step="0.05">
+            <small class="muted">Menor = escuta mais fácil (mais disparos falsos)</small>
+          </label>
+          <label class="check"><input type="checkbox" name="followUp"> Continuar ouvindo após responder</label>
+          <label class="check"><input type="checkbox" name="bargeIn"> Interromper o JARVIS falando por cima (use headset)</label>
+          <label class="check"><input type="checkbox" name="voiceFx"> Efeito de voz de IA</label>
+          <label class="check"><input type="checkbox" name="bootGreeting"> Abertura falada ao iniciar</label>
+          <button type="button" class="btn" id="btnTestVoice">▶ Testar voz</button>
+        </section>
+        <section class="card">
+          <h3>VOCÊ</h3>
+          <div class="grid2">
+            <label>Como devo chamá-lo<input name="userName"></label>
+            <label>Sua cidade<input name="city"></label>
+          </div>
+          <label>Pasta dos projetos<input name="projectsDir"></label>
+          <label>Token do GitHub <small class="muted">(opcional, para repositórios privados)</small><input type="password" name="githubToken" placeholder="ghp_..."></label>
+        </section>
+        <section class="card">
+          <h3>ATALHOS E JANELA</h3>
+          <div class="grid2">
+            <label>Falar com o JARVIS<input name="hotkeyListen" class="hotkey" readonly title="Clique e pressione a combinação"></label>
+            <label>Mostrar/esconder<input name="hotkeyToggle" class="hotkey" readonly title="Clique e pressione a combinação"></label>
+          </div>
+          <small class="muted">Clique no campo e pressione a combinação de teclas.</small>
+          <label class="check"><input type="checkbox" name="miniOrb"> Mostrar o mini-orb ao minimizar</label>
+        </section>
+        <section class="card">
+          <h3>YOUTUBE MUSIC</h3>
+          <label>Caminho do aplicativo<input name="ytmPath"></label>
+          <button type="button" class="btn" id="btnYtmReauth">Autorizar de novo</button>
+        </section>
+        <section class="card">
+          <h3>CELULAR</h3>
+          <p class="st-text muted">App do JARVIS no celular: falar, música, tarefas, câmera e alertas do sentinela. Depois de escanear uma vez, salve a página nos favoritos (ou "Adicionar à tela inicial").</p>
+          <button type="button" class="btn" id="btnPhonePair">Mostrar QR code</button>
+        </section>
+        <section class="card">
+          <h3>TELEGRAM</h3>
+          <ol class="st-steps muted">
+            <li>No Telegram, abra o <b>@BotFather</b> e mande <b>/newbot</b>.</li>
+            <li>Escolha um nome e copie o <b>token</b> que ele mostrar.</li>
+            <li>Cole aqui, salve e mande o código abaixo para o seu bot.</li>
+          </ol>
+          <label>Token do bot<input type="password" name="telegramToken" placeholder="123456:ABC..."></label>
+          <div class="st-telegram" id="stTelegram"></div>
+          <label class="check"><input type="checkbox" name="telegramAlerts"> Mandar alertas no Telegram (sentinela e lembretes)</label>
+        </section>
+        <section class="card">
+          <h3>ARMAZENAMENTO</h3>
+          <ul class="st-disks" id="stDisks"></ul>
+        </section>
+        <section class="card st-skills-card">
+          <h3>FUNÇÕES DO JARVIS</h3>
+          <small class="muted">Desligue o que não usa: o JARVIS fica mais rápido e erra menos.</small>
+          <ul class="st-skills" id="stSkills"></ul>
+        </section>
+      </form>
+    </section>
+
+    <aside class="panel right">
+      <section class="card chat-card">
+        <h3>DIÁLOGO <button class="link" id="btnClear" title="Limpar memória da conversa">limpar</button></h3>
+        <div class="chat" id="chat"></div>
+        <form class="input" id="form">
+          <input id="text" autocomplete="off" placeholder="Digite um comando...">
+          <button type="submit">➤</button>
+        </form>
+      </section>
+    </aside>
+  </main>
+  </div>
+
+  <div id="toasts"></div>
+  <div class="hand-cursor" id="handCursor" hidden><i></i><span></span></div>
+
+  <div class="modal" id="kbModal" hidden>
+    <div class="modal-box kb-box">
+      <header class="kb-head">
+        <h2>DOSSIÊ</h2>
+        <span class="muted">Tudo que estiver aqui o JARVIS usa quando você falar desse assunto.</span>
+      </header>
+      <div class="kb-fields">
+        <label>Nome<input id="kbTitle" placeholder="Ex: CAMPEX" autocomplete="off"></label>
+        <label>Também chamado de<input id="kbAliases" placeholder="Separe por vírgula: campex nova pro, a empresa" autocomplete="off"></label>
+        <label>Projeto ligado<select id="kbProject"><option value="">Nenhum</option></select></label>
+      </div>
+      <div class="kb-editor" id="kbEditor">
+        <textarea id="kbText" spellcheck="false" placeholder="Escreva aqui tudo sobre o assunto, do jeito que você explicaria para alguém novo no time.
+
+## O que é
+## Para quem / clientes
+## Como funciona (produto, módulos, arquitetura)
+## Decisões e regras importantes
+## Pessoas, links, números
+
+Também dá para arrastar um PDF, Word, planilha ou texto aqui para importar."></textarea>
+        <div class="kb-drop" id="kbDrop" hidden><b>Solte para importar</b><span>o texto do arquivo entra no fim do dossiê</span></div>
+      </div>
+      <footer class="kb-foot">
+        <button class="btn" id="kbImport" type="button">📄 Importar arquivo</button>
+        <input type="file" id="kbFile" multiple hidden accept=".pdf,.docx,.xlsx,.xls,.csv,.ods,.txt,.md,.json,.html">
+        <span class="muted kb-count" id="kbCount"></span>
+        <span class="kb-spacer"></span>
+        <button class="btn danger" id="kbDelete" type="button">Apagar</button>
+        <button class="btn" id="kbCancel" type="button">Cancelar</button>
+        <button class="btn primary" id="kbSave" type="button">Salvar dossiê</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="modal" id="camPair" hidden>
+    <div class="modal-box pair">
+      <h2>CONECTAR CÂMERA DO CELULAR</h2>
+      <div class="pair-body">
+        <img id="camQr" alt="QR code para conectar o celular">
+        <ol>
+          <li>Conecte o celular no <b>mesmo Wi-Fi</b> do PC.</li>
+          <li>Aponte a câmera do celular para o QR code.</li>
+          <li>O navegador vai avisar que a conexão "não é particular": toque em <b>Avançado → Continuar</b>. É o certificado local do JARVIS.</li>
+          <li>Toque em <b>Ligar câmera</b> e permita o acesso.</li>
+        </ol>
+      </div>
+      <p class="muted pair-note">Se o Windows perguntar sobre o firewall, permita em <b>redes privadas</b>.<br><span id="camUrl"></span></p>
+      <div class="actions"><button type="button" id="camPairClose">Fechar</button></div>
+    </div>
+  </div>
+
+  <!-- ===================== FÁBRICA DE HOLOGRAMAS (3D) ===================== -->
+  <section class="forge" id="forge" hidden>
+    <canvas id="forgeCanvas"></canvas>
+    <header class="doc-top">
+      <span class="doc-kicker">J.A.R.V.I.S. · FÁBRICA DE HOLOGRAMAS</span>
+      <span class="doc-title" id="fgTitle"></span>
+      <span class="doc-scene" id="fgSub"></span>
+    </header>
+    <aside class="fg-parts" id="fgParts"></aside>
+    <aside class="doc-aside fg-info" id="fgInfo"></aside>
+    <div class="fg-stroke" id="fgStroke"></div>
+    <div class="fg-label" id="fgLabel"></div>
+    <footer class="fg-bar">
+      <label class="fg-slider" title="Desmontar">DESMONTAR <input type="range" id="fgExplode" min="0" max="1.6" step="0.01" value="0"></label>
+      <div class="doc-ctrls">
+        <button type="button" data-fg="play" id="fgPlay" title="Animar / parar (espaço)">❚❚</button>
+        <button type="button" data-fg="cut" id="fgCut" title="Corte ao meio (C)">◧</button>
+        <button type="button" data-fg="reset" title="Remontar e recentralizar (R)">↺</button>
+        <button type="button" data-fg="close" title="Fechar (Esc)">✕</button>
+      </div>
+      <label class="fg-slider" title="Velocidade">VELOCIDADE <input type="range" id="fgSpeed" min="0.1" max="4" step="0.05" value="1"></label>
+      <span class="doc-hint">arraste peças · clique para ver · duplo clique isola · botão direito move a câmera</span>
+    </footer>
+  </section>
+
+  <!-- ===================== DOCUMENTÁRIO ===================== -->
+  <section class="doc" id="doc" hidden>
+    <div class="doc-stage" id="docStage"></div>
+    <div class="doc-vignette"></div>
+    <div class="doc-black" id="docBlack"></div>
+    <header class="doc-top">
+      <span class="doc-kicker">J.A.R.V.I.S. · DOCUMENTÁRIO</span>
+      <span class="doc-title" id="docTitle"></span>
+      <span class="doc-scene" id="docScene"></span>
+    </header>
+    <p class="doc-sub" id="docSub"></p>
+    <div class="doc-status" id="docStatus"></div>
+    <footer class="doc-bar">
+      <div class="doc-progress"><span id="docProgress"></span></div>
+      <div class="doc-ctrls">
+        <button type="button" data-doc="back" title="Voltar (←)">⏮</button>
+        <button type="button" data-doc="toggle" id="docToggle" title="Pausar (espaço)">❚❚</button>
+        <button type="button" data-doc="next" title="Pular (→)">⏭</button>
+        <button type="button" data-doc="stop" title="Encerrar (Esc)">✕</button>
+      </div>
+      <span class="doc-hint">“Hey Jarvis, pausa” · “continua” · “volta” · “quem é essa pessoa?”</span>
+    </footer>
+  </section>
+
+  <script src="renderer.js"></script>
+  <script src="screens.js"></script>
+  <script src="chat.js"></script>
+  <script src="chat-effort.js"></script>
+  <script src="dossie.js"></script>
+  <script src="gestures.js"></script>
+  <script src="../node_modules/maplibre-gl/dist/maplibre-gl-csp.js"></script>
+  <script src="livemap.js"></script>
+  <script src="doc-score.js"></script>
+  <script src="documentary.js"></script>
+  <script type="module" src="holo.js"></script>
+  <script type="module" src="oficina.js"></script>
+  <script type="module" src="forge.js"></script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#050505">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>JARVIS</title>
+  <link rel="stylesheet" href="/phone.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><i id="dot"></i>J.A.R.V.I.S.</div>
+    <span id="st">conectando...</span>
+    <button id="earBtn" class="drive-btn" title="Fone: ouvir o PC no celular">🎧</button>
+    <button id="driveBtn" class="drive-btn" title="Modo carro">🚗</button>
+  </header>
+
+  <!-- FONE: som do PC tocando aqui (e no fone Bluetooth conectado ao celular) + microfone do fone para o JARVIS -->
+  <div id="ear" class="ear" hidden>
+    <div class="ear-card">
+      <div class="ear-head"><b>🎧 Fone pelo celular</b><button id="earClose" aria-label="Fechar">✕</button></div>
+      <div class="ear-status"><i id="earDot"></i><span id="earSt">Desligado</span></div>
+      <button id="earGo" class="ear-go">Ouvir o PC aqui</button>
+      <button id="earMic" class="ear-mic" disabled>🎙 Microfone do fone: desligado</button>
+      <p class="ear-note">O som do PC (música, vídeos, a voz do JARVIS) toca aqui e no fone conectado; as caixas do PC ficam mudas.</p>
+      <p class="ear-note">Com o microfone ligado, diga "Hey Jarvis" pelo fone. O iPhone passa o fone para o modo ligação, com som de qualidade menor. Desligue o microfone para ouvir música em alta qualidade.</p>
+      <p class="ear-note warn">Deixe esta tela aberta: o iPhone corta o som se você trocar de app ou bloquear a tela.</p>
+    </div>
+  </div>
+  <audio id="earAudio" playsinline></audio>
+
+  <!-- JARVIS DRIVE: modo carro, por cima de tudo. Pouca informação, letras grandes, tudo por voz -->
+  <div id="drive" class="drive" hidden>
+    <header class="d-top">
+      <div class="d-time" id="dTime">--:--</div>
+      <div class="d-state"><i id="dDot"></i><span id="dState">conectando</span></div>
+      <button id="dExit" class="d-exit">Sair</button>
+    </header>
+    <div class="d-caption" id="dCaption">Toque no botão e fale.</div>
+    <button id="dMic" class="d-mic" aria-label="Falar com o JARVIS"><span class="d-ring"></span><b id="dMicLabel">FALAR</b></button>
+    <div class="d-tiles">
+      <button class="d-tile" id="dAgenda"><small>AGENDA</small><b id="dAgendaMain">Nada agora</b><span id="dAgendaSub"></span></button>
+      <div class="d-tile d-music"><small>MÚSICA</small><b id="dSong">Nada tocando</b>
+        <div class="d-mbtns"><button data-dm="toggle" id="dPlay" aria-label="Tocar ou pausar">▶</button><button data-dm="next" aria-label="Próxima">⏭</button></div>
+      </div>
+      <button class="d-tile" id="dRoute"><small>ROTA</small><b>Para onde?</b><span>toque e diga o destino</span></button>
+      <button class="d-tile" id="dProj"><small>PROJETOS</small><b id="dProjMain">Agentes livres</b><span id="dProjSub"></span></button>
+    </div>
+    <div class="d-nav" id="dNav" hidden>
+      <small>ROTA PRONTA</small>
+      <b id="dNavDest"></b>
+      <div class="d-nav-apps"><a id="dMaps" target="_blank" rel="noopener">Google Maps</a><a id="dWaze" target="_blank" rel="noopener">Waze</a><a id="dApple" target="_blank" rel="noopener" hidden>Apple Maps</a></div>
+      <button id="dNavClose">Fechar</button>
+    </div>
+  </div>
+
+  <div id="alert" class="alert" hidden></div>
+
+  <main>
+    <!-- FALAR -->
+    <section class="tab" id="tab-talk">
+      <div class="chat" id="chat">
+        <p class="hint">Segure o botão para falar, ou digite abaixo.<br>Tudo que o JARVIS faz no PC funciona daqui.</p>
+      </div>
+      <div class="talk-bar">
+        <label class="speak-toggle"><input type="checkbox" id="speakHere" checked> resposta falada aqui</label>
+        <button id="mic" class="mic" aria-label="Segure para falar"><span></span></button>
+        <form id="form" class="input">
+          <input id="text" placeholder="Digite um comando..." autocomplete="off" enterkeyhint="send">
+          <button>➤</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- MÚSICA -->
+    <section class="tab" id="tab-music" hidden>
+      <div class="music">
+        <img id="cover" alt="">
+        <h2 id="mTitle">Nada tocando</h2>
+        <p id="mArtist" class="muted">Peça uma música na aba Falar</p>
+        <div class="bar"><i id="mProgress"></i></div>
+        <div class="controls">
+          <button data-m="previous">⏮</button>
+          <button data-m="toggle" id="mToggle" class="play">▶</button>
+          <button data-m="next">⏭</button>
+        </div>
+        <div class="controls small">
+          <button data-m="shuffle">⤮</button>
+          <button data-m="like">♥</button>
+        </div>
+        <label class="vol">🔈<input type="range" id="mVol" min="0" max="100">🔊</label>
+      </div>
+    </section>
+
+    <!-- TAREFAS -->
+    <section class="tab" id="tab-tasks" hidden>
+      <form id="taskForm" class="input task-add">
+        <input id="taskText" placeholder="Nova tarefa..." autocomplete="off" enterkeyhint="done">
+        <button>＋</button>
+      </form>
+      <ul class="tasks" id="tasks"></ul>
+    </section>
+
+    <!-- PC: tela ao vivo + touchpad + atalhos -->
+    <section class="tab" id="tab-pc" hidden>
+      <div class="pc-top">
+        <button id="pcScreenBtn" class="chip">🖥 Ver tela</button>
+        <button id="pcMonitor" class="chip" hidden>Monitor 1</button>
+        <span class="muted pc-hint" id="pcHint">Arraste para mover o mouse · toque = clique · 2 dedos = rolar</span>
+      </div>
+      <div class="pad" id="pad">
+        <img id="pcScreen" alt="">
+        <div class="pad-label" id="padLabel">TOUCHPAD</div>
+      </div>
+      <div class="pc-keys">
+        <button data-k="left">🖱 Esq.</button>
+        <button data-k="right">🖱 Dir.</button>
+        <button data-k="media_prev">⏮</button>
+        <button data-k="media_play">⏯</button>
+        <button data-k="media_next">⏭</button>
+        <button data-k="vol_down">🔉</button>
+        <button data-k="vol_mute">🔇</button>
+        <button data-k="vol_up">🔊</button>
+        <button data-k="enter">⏎</button>
+        <button data-k="backspace">⌫</button>
+        <button data-k="esc">Esc</button>
+        <button data-k="lock">🔒</button>
+      </div>
+      <form id="typeForm" class="input pc-type">
+        <input id="typeText" placeholder="Digitar no PC..." autocomplete="off" enterkeyhint="send">
+        <button>⌨</button>
+      </form>
+    </section>
+
+    <!-- CÂMERA -->
+    <section class="tab cam-tab off" id="tab-cam">
+      <div class="cam-view">
+        <video id="v" playsinline muted autoplay></video>
+        <canvas id="handCanvas" class="hand-canvas"></canvas>
+        <div class="ring"></div>
+        <div id="camMsg" class="cam-msg">Toque em <b>📷</b> para ligar a câmera.<br>Ela continua enviando mesmo em outras abas.</div>
+        <div id="sentinel" class="sentinel" hidden>● MODO SENTINELA</div>
+
+        <div class="cam-float right">
+          <button id="camGo" class="fab" title="Ligar/desligar câmera">📷</button>
+          <button id="camFlip" class="fab" title="Virar câmera">⟲</button>
+          <button id="gestures" class="fab" title="Modo gestos">✋</button>
+          <button id="presence" class="fab" title="Presença na mesa e postura">🪑</button>
+        </div>
+        <div id="presPill" class="pres-pill" hidden></div>
+
+        <div class="cam-answer" id="camAnswer" hidden></div>
+
+        <div class="cam-float bottom">
+          <button id="camAsk" class="pill">👁 Perguntar</button>
+          <button id="camSketch" class="pill">✏ Desenho → código</button>
+        </div>
+      </div>
+
+      <div class="sheet" id="askSheet" hidden>
+        <div class="chips">
+          <button data-q="O que você está vendo?">O que é isso?</button>
+          <button data-q="Lê o texto que aparece na imagem">Ler texto</button>
+          <button data-q="Traduz para português o texto que aparece">Traduzir</button>
+          <button data-q="Resolve o exercício que aparece na imagem, explicando">Resolver</button>
+        </div>
+        <form id="askForm" class="input">
+          <input id="askText" placeholder="Pergunte sobre o que a câmera vê..." autocomplete="off" enterkeyhint="send">
+          <button>➤</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button data-tab="talk" class="active"><span>◉</span>Falar</button>
+    <button data-tab="music"><span>♫</span>Música</button>
+    <button data-tab="tasks"><span>☰</span>Tarefas</button>
+    <button data-tab="pc"><span>🖥</span>PC</button>
+    <button data-tab="cam"><span>◎</span>Câmera</button>
+  </nav>
+
+  <script src="/phone.js"></script>
+</body>
+</html>

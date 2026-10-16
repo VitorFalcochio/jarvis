@@ -1,0 +1,41 @@
+/* Design system do JARVIS: "Obsidiana & Champanhe", tirado da logo.
+   Preto profundo e grafite quente, luz champanhe/marfim nos destaques, bronze nos detalhes.
+   As cores com sufixo -rgb existem para transparências: rgba(var(--accent-rgb), .2) */
+:root {
+  /* superfícies */
+  --bg: #050505;
+  --bg-elev: #0d0c0b;
+  --surface-rgb: 17, 16, 15;
+  --panel: rgba(var(--surface-rgb), 0.78);
+  --line: rgba(var(--accent-rgb), 0.13);
+  --line-strong: rgba(var(--accent-rgb), 0.32);
+
+  /* luz da marca */
+  --accent-rgb: 233, 214, 182;
+  --accent: #e9d6b6;        /* champanhe */
+  --accent-soft: #fbf1e1;   /* marfim: brilhos e textos de destaque */
+  --accent-deep: #9c8263;   /* bronze: detalhes e trilhas */
+  --glow: 0 0 14px rgba(var(--accent-rgb), 0.35);
+
+  /* texto */
+  --text-rgb: 236, 231, 223;
+  --text: #ece7df;
+  --muted: #8b8378;
+
+  /* estados (reservados: não usar como "cor de série") */
+  --amber-rgb: 226, 160, 74;
+  --amber: #e2a04a;         /* ocupado / pensando / atenção */
+  --green-rgb: 134, 199, 154;
+  --green: #86c79a;         /* ok / ouvindo */
+  --red-rgb: 224, 98, 90;
+  --red: #e0625a;           /* erro / offline */
+
+  /* tipografia */
+  --font-ui: 'Rajdhani', 'Segoe UI', sans-serif;
+  --font-hud: 'Michroma', 'Segoe UI', sans-serif;   /* títulos e marca */
+  --font-num: 'Rajdhani', 'Segoe UI', sans-serif;    /* números pequenos (o % da Michroma vira "o/o") */
+
+  /* forma */
+  --radius: 10px;
+  --radius-sm: 6px;
+}
